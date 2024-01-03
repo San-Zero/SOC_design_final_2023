@@ -8,13 +8,79 @@
     <link href="/css/bootstrap.min.css" rel="stylesheet">
 
     <script src="/js/jquery.min.js"></script>
-    <script src="/js/utils.js"></script>
     <link href="/css/index.css" rel="stylesheet">
 
     <title>Helloworld</title>
 </head>
 <body>
-    <div></div>
-    <script></script>
+    <div class="row">
+        <div class="col"></div>
+        <div class="col">
+            <div>
+                <img src="http://localhost:8100/image/0" width="720" height="480">
+            </div>
+        </div>
+        <div class="col">
+            <table class="table table-bordered table-hover table-striped caption-top border border-2 border-dark">
+                <thead class="table-dark">
+                    <tr>
+                        <th scope="col"></th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row"></th>
+                        <td id="coin-50"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"></th>
+                        <td id="coin-10"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"></th>
+                        <td id="coin-5"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"></th>
+                        <td id="coin-1"></td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th scope="row"></th>
+                        <td colspan="2" id="coin-total"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        <div class="col"></div>
+    </div>
+    <script>
+        $(document).ready(function() {
+            url = "http://localhost:8100/image/";
+            var frame = 0;
+            setInterval(function() {
+                frame += 1;
+
+                <!-- request of getting image -->
+                $.ajax({
+                    url: '/image/' + frame,
+                    type: 'GET',
+                    success: function (data) {
+                        $('img').attr('src', url + frame);
+                    },
+                    error: function (data) {
+                        if (data.status == 404) {
+                            frame = 0;
+                        }
+                    }
+                });
+
+                <!-- request of getting result -->
+
+            }, 33);
+        });
+    </script>
 </body>
 </html>

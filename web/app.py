@@ -1,10 +1,8 @@
-import os
-import random
-import json
-import pandas as pd
 import socket
 import threading
-from flask import Flask, render_template, send_from_directory, request
+from flask import Flask, render_template, jsonify, request, send_file, Response
+from io import BytesIO
+import cv2
 
 app = Flask(__name__, static_url_path='', static_folder='static')
 
@@ -13,9 +11,57 @@ result_img_queue = []
 result_queue = []
 
 
-@app.route('/')
+@app.route('/', methods=['GET'])
 def hello_world():
+    if request.method != 'GET':
+        response = jsonify({'message': 'Method not allowed'})
+        response.status_code = 405
+        return response
+
     return render_template('index.html')
+
+
+@app.route('/image/<int:frame>', methods=['GET'])
+def get_image(frame):
+    if request.method != 'GET':
+        response = jsonify({'message': 'Method not allowed'})
+        response.status_code = 405
+        return response
+
+    if len(result_img_queue) == 0:
+        response = jsonify({'message': 'No image in queue'})
+        response.status_code = 404
+        return response
+
+    if frame > len(result_img_queue) - 1:
+        response = jsonify({'message': 'Index out of range'})
+        response.status_code = 404
+        return response
+
+    img_bytes = result_img_queue[frame]
+    return send_file(BytesIO(img_bytes), mimetype='image/jpeg')
+
+
+@app.route('/result/<int:frame>', methods=['GET'])
+def get_result(frame):
+    if request.method != 'GET':
+        response = jsonify({'message': 'Method not allowed'})
+        response.status_code = 405
+        return response
+
+    if len(result_img_queue) == 0:
+        response = jsonify({'message': 'No result in queue'})
+        response.status_code = 404
+        return response
+
+    if frame > len(result_img_queue) - 1:
+        response = jsonify({'message': 'Index out of range'})
+        response.status_code = 404
+        return response
+
+    response = jsonify({'result': result_queue[frame]})
+    response.status_code = 200
+    return response
 
 
 def udp_socket_server(ip, port):
@@ -30,11 +76,12 @@ def udp_socket_server(ip, port):
 
     try:
         while True:
-            data, addr = sock.recvfrom(1024)
+            data, addr = sock.recvfrom(65536)
             if not data:
                 sock.sendto("True".encode(), addr)
                 break
-            print(f"Received data from {addr}: {data.decode('utf-8')}")
+            # TODO: 處理接收到的資料
+            # print(f"Received data from {addr}: {data.decode('utf-8')}")
     except Exception as e:
         print(e)
     except KeyboardInterrupt:
@@ -44,7 +91,10 @@ def udp_socket_server(ip, port):
 
 def handle_image(img):
     try:
-        result_img_queue.append(img)
+        _, img_encoded = cv2.imencode('.jpg', img)
+        img_bytes = img_encoded.tobytes()
+
+        result_img_queue.append(img_bytes)
         return True
     except Exception as e:
         print(e)
@@ -62,11 +112,14 @@ def handle_result(result):
 if __name__ == '__main__':
     try:
         udp_thread = threading.Thread(
-            target=udp_socket_server, args=("0.0.0.0", 8001))
+            target=udp_socket_server, args=("0.0.0.0", 8101))
         udp_thread.daemon = True
         udp_thread.start()
 
-        app.run(debug=True, host="0.0.0.0", port=8000)
+        video_thread = threading.Thread(target=read_video)
+        app.run(debug=True, host="0.0.0.0", port=8100)
 
     except Exception as e:
         print(e)
+    except KeyboardInterrupt:
+        udp_thread.join()
