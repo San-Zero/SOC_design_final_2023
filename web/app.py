@@ -8,6 +8,14 @@ app = Flask(__name__, static_url_path='', static_folder='static')
 
 
 result_img_queue = []
+'''
+result_queue_example = [
+    {
+        "x": [0, 1, 2],
+        "y": [0, 1, 2]
+    },
+]
+'''
 result_queue = []
 
 
@@ -49,17 +57,17 @@ def get_result(frame):
         response.status_code = 405
         return response
 
-    if len(result_img_queue) == 0:
+    if len(result_queue) == 0:
         response = jsonify({'message': 'No result in queue'})
         response.status_code = 404
         return response
 
-    if frame > len(result_img_queue) - 1:
+    if frame > len(result_queue) - 1:
         response = jsonify({'message': 'Index out of range'})
         response.status_code = 404
         return response
 
-    response = jsonify({'result': result_queue[frame]})
+    response = jsonify(result_queue[frame])
     response.status_code = 200
     return response
 
@@ -116,7 +124,6 @@ if __name__ == '__main__':
         udp_thread.daemon = True
         udp_thread.start()
 
-        video_thread = threading.Thread(target=read_video)
         app.run(debug=True, host="0.0.0.0", port=8100)
 
     except Exception as e:

@@ -1,86 +1,88 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
     <script src="/js/bootstrap.bundle.min.js"></script>
-    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/bootstrap.min.css" rel="stylesheet"/>
 
     <script src="/js/jquery.min.js"></script>
-    <link href="/css/index.css" rel="stylesheet">
+    <link href="/css/index.css" rel="stylesheet"/>
 
     <title>Helloworld</title>
 </head>
 <body>
-    <div class="row">
-        <div class="col"></div>
-        <div class="col">
-            <div>
-                <img src="http://localhost:8100/image/0" width="720" height="480">
-            </div>
-        </div>
-        <div class="col">
-            <table class="table table-bordered table-hover table-striped caption-top border border-2 border-dark">
-                <thead class="table-dark">
-                    <tr>
-                        <th scope="col"></th>
-                        <th scope="col"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <th scope="row"></th>
-                        <td id="coin-50"></td>
-                    </tr>
-                    <tr>
-                        <th scope="row"></th>
-                        <td id="coin-10"></td>
-                    </tr>
-                    <tr>
-                        <th scope="row"></th>
-                        <td id="coin-5"></td>
-                    </tr>
-                    <tr>
-                        <th scope="row"></th>
-                        <td id="coin-1"></td>
-                    </tr>
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <th scope="row"></th>
-                        <td colspan="2" id="coin-total"></td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
-        <div class="col"></div>
+<div class="row">
+    <div class="col-2"></div>
+    <div class="col">
+        <h1 id="frame-count"></h1>
     </div>
-    <script>
-        $(document).ready(function() {
-            url = "http://localhost:8100/image/";
-            var frame = 0;
-            setInterval(function() {
-                frame += 1;
+    <div class="col-2"></div>
+</div>
+<div class="row">
+    <div class="col-2"></div>
+    <div class="col">
+        <div>
+            <img src="http://localhost:8100/image/0" width="720" height="480"/>
+        </div>
+    </div>
+    <div class="col">
+        <table
+                class="table table-bordered table-hover table-striped caption-top border border-2 border-dark"
+                style="width: 100%"
+        >
+            <thead class="table-dark">
+            <tr>
+                <th scope="col" style="width: 50%">X</th>
+                <th scope="col" style="width: 50%">Y</th>
+            </tr>
+            </thead>
+            <tbody id="position-result">
+            <tr>
+                <th scope="row"></th>
+                <td></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="col-2"></div>
+</div>
+<script>
+    $(document).ready(function () {
+        url = "http://localhost:8100/image/";
+        var frame = 0;
+        setInterval(function () {
+            frame += 1;
 
-                <!-- request of getting image -->
-                $.ajax({
-                    url: '/image/' + frame,
-                    type: 'GET',
-                    success: function (data) {
-                        $('img').attr('src', url + frame);
-                    },
-                    error: function (data) {
-                        if (data.status == 404) {
-                            frame = 0;
-                        }
+            <!-- request of getting image -->
+            $.ajax({
+                url: "/image/" + frame,
+                type: "GET",
+                success: function (data) {
+                    $(`#frame-count`).text(`Frame ${frame}`);
+                    $("img").attr("src", url + frame);
+                },
+                error: function (data) {
+                    if (data.status === 404) {
+                        frame = 0;
                     }
-                });
+                },
+            });
 
-                <!-- request of getting result -->
-
-            }, 33);
-        });
-    </script>
+            <!-- request of getting result -->
+            $.ajax({
+                url: "/result/" + frame,
+                type: "GET",
+                success: function (data) {
+                    $(`#position-result`).empty();
+                    for (let i = 0; i < data["x"].length; i++) {
+                        $("#position-result").append(`<tr><th scope="row">${data["x"][i]}</th><td>${data["y"][i]}</td></tr>`);
+                    }
+                }
+            });
+        }, 100);
+    });
+</script>
 </body>
 </html>
