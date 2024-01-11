@@ -1,0 +1,3 @@
+[submodule "Soc_course"]
+	path = Soc_course
+	url = https://github.com/ding331/Soc_course.git
