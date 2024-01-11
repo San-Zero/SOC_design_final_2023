@@ -13,46 +13,58 @@
     <title>Helloworld</title>
 </head>
 <body>
-<div class="row">
-    <div class="col-2"></div>
-    <div class="col">
-        <h1 id="frame-count"></h1>
-    </div>
-    <div class="col-2"></div>
-</div>
-<div class="row">
-    <div class="col-2"></div>
-    <div class="col">
-        <div>
-            <img src="http://localhost:8100/image/0" width="720" height="480"/>
+<div>
+    <div class="row">
+        <div class="col-2"></div>
+        <div class="col">
+            <h1 id="frame-count"></h1>
         </div>
+        <div class="col-2"></div>
     </div>
-    <div class="col">
-        <table
-                class="table table-bordered table-hover table-striped caption-top border border-2 border-dark"
-                style="width: 100%"
-        >
-            <thead class="table-dark">
-            <tr>
-                <th scope="col" style="width: 50%">X</th>
-                <th scope="col" style="width: 50%">Y</th>
-            </tr>
-            </thead>
-            <tbody id="position-result">
-            <tr>
-                <th scope="row"></th>
-                <td></td>
-            </tr>
-            </tbody>
-        </table>
+    <div class="row">
+        <div class="col-2"></div>
+        <div class="col">
+            <div>
+                <img src="http://localhost:8100/image/0" width="720" height="480"/>
+            </div>
+        </div>
+        <div class="col">
+            <table
+                    class="table table-bordered table-hover table-striped caption-top border border-2 border-dark"
+                    style="width: 100%"
+            >
+                <thead class="table-dark">
+                <tr>
+                    <th scope="col" style="width: 50%">X</th>
+                    <th scope="col" style="width: 50%">Y</th>
+                </tr>
+                </thead>
+                <tbody id="position-result">
+                <tr>
+                    <th scope="row"></th>
+                    <td></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-2"></div>
     </div>
-    <div class="col-2"></div>
+    <div class="row">
+        <div class="col-2"></div>
+        <div class="col">
+            <div class="btn-group" role="group" aria-label="Basic example">
+                <button type="button" class="btn btn-primary" id="stop-btn">Stop</button>
+            </div>
+        </div>
+        <div class="col-2"></div>
+    </div>
 </div>
 <script>
     $(document).ready(function () {
         url = "http://localhost:8100/image/";
         var frame = 0;
-        setInterval(function () {
+        var isStopped = false;
+        var interval = setInterval(function () {
             frame += 1;
 
             <!-- request of getting image -->
@@ -81,7 +93,17 @@
                     }
                 }
             });
-        }, 100);
+        }, 33);
+        $("#stop-btn").on("click", function () {
+            isStopped = !isStopped;
+            if(isStopped){
+                $(this).removeClass("btn-primary").addClass("btn-danger");
+                $(this).text("Start");
+            }else{
+                $(this).removeClass("btn-danger").addClass("btn-primary");
+                $(this).text("Stop");
+            }
+        })
     });
 </script>
 </body>
